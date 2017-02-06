@@ -51,68 +51,6 @@ sample_docs                            data
 
 ## JSONs
 
-### _sitemap.json (config.SiteMapDeep is 2)
-
-```json 
-[
-  {
-    "title": "Simple Article",
-    "location": "simple article"
-  },
-  {
-    "title": "Hello world",
-    "location": "yaml article"
-  },
-  {
-    "title": "first dir",
-    "children": [
-      {
-        "title": "Hello word",
-        "location": "first dir/hello word"
-      }
-    ]
-  },
-  {
-    "title": "second dir",
-    "children": [
-      {
-        "title": "Hello word",
-        "location": "second dir/hello word"
-      }
-    ]
-  }
-]
-```
-### _search_index.json
-
-```json
-[
-  {
-    "location": "first dir/hello word",
-    "text": "Hello This is title This can be a blog engine that not limit you.\nSimple Image Simple Internal MD files you can use this Hello word, to links to other md documents\n",
-    "title": "Hello word"
-  },
-  {
-    "location": "second dir/hello word",
-    "text": "Hello This is title This can be a blog engine that not limit you.\nThis is some image\n",
-    "title": "Hello word"
-  },
-  {
-    "location": "simple article",
-    "text": "This is a Simple Article This is a Simple Article\n",
-    "title": "Simple Article"
-  },
-  {
-    "location": "yaml article",
-    "tags": [
-      "golang",
-      "hello"
-    ],
-    "text": "This is a article include YAML This is content\n",
-    "title": "Hello world"
-  }
-]
-```
 
 ### simple article.json
 
@@ -180,6 +118,69 @@ After
   "title": "Hello world",
   "type": "Page"
 }
+```
+
+### _sitemap.json (config.SiteMapDeep is 2)
+
+```json 
+[
+  {
+    "title": "Simple Article",
+    "location": "simple article"
+  },
+  {
+    "title": "Hello world",
+    "location": "yaml article"
+  },
+  {
+    "title": "first dir",
+    "children": [
+      {
+        "title": "Hello word",
+        "location": "first dir/hello word"
+      }
+    ]
+  },
+  {
+    "title": "second dir",
+    "children": [
+      {
+        "title": "Hello word",
+        "location": "second dir/hello word"
+      }
+    ]
+  }
+]
+```
+### _search_index.json
+
+```json
+[
+  {
+    "location": "first dir/hello word",
+    "text": "Hello This is title This can be a blog engine that not limit you.\nSimple Image Simple Internal MD files you can use this Hello word, to links to other md documents\n",
+    "title": "Hello word"
+  },
+  {
+    "location": "second dir/hello word",
+    "text": "Hello This is title This can be a blog engine that not limit you.\nThis is some image\n",
+    "title": "Hello word"
+  },
+  {
+    "location": "simple article",
+    "text": "This is a Simple Article This is a Simple Article\n",
+    "title": "Simple Article"
+  },
+  {
+    "location": "yaml article",
+    "tags": [
+      "golang",
+      "hello"
+    ],
+    "text": "This is a article include YAML This is content\n",
+    "title": "Hello world"
+  }
+]
 ```
 
 ## How to Use
