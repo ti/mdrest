@@ -60,7 +60,9 @@ Before
 Simple Article.md
 
 last modified: 2017-01-17T10:42:14+08:00
+
 file content:
+
 # This is a Simple Article
 
 This is a Simple Article
@@ -86,6 +88,7 @@ Before
 YAML Article.md
 
 last modified: 2017-01-17T10:42:14+08:00
+
 file content:
 
 ---
