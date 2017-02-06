@@ -6,7 +6,6 @@ type Config struct {
 	SrcDir   string
 	OutputType string      //you can put json or  html is default
 	SiteMapDeep int
-	ServerBaseDir  string  //if the markdown image in assets/xxx.png,
 	DistDir  string
 	NoLogging  bool
 	NoIndex    bool

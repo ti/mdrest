@@ -1,7 +1,7 @@
 package main
 
 import (
-	"git.tiup.us/linx/mdrest"
+	"github.com/leenanxi/mdrest"
 	"log"
 	"flag"
 	"io/ioutil"
