@@ -1,0 +1,12 @@
+{
+  "Watch": false,
+  "BasePath": "/app/docs/",
+  "SrcDir": "../sample_docs",
+  "OutputType": "json",
+  "SiteMapDeep": 2,
+  "ServerBaseDir": "",
+  "DistDir": "",
+  "NoLogging": false,
+  "NoIndex": false,
+  "NoSiteMap": false
+}
