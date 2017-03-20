@@ -14,6 +14,7 @@ import (
 	"log"
 	"sort"
 	"path"
+	"io/ioutil"
 )
 
 const (
@@ -71,7 +72,7 @@ func (a Articles) Remove(location string) *Article {
 
 
 // ReadArticle returns an article read from a Reader
-func ReadArticle(srcDir, basePath, fpath string) (Article, error) {
+func ReadArticle(srcDir, fpath string) (Article, error) {
 	file, err := os.Open(fpath)
 	if err != nil {
 		return nil, err
@@ -103,10 +104,15 @@ func ReadArticle(srcDir, basePath, fpath string) (Article, error) {
 	}
 	location := strings.TrimSuffix(strings.TrimPrefix(fpath, srcDir), path.Ext(fpath))
 	body[KeyLocation] = strings.ToLower(location)
+
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		panic("READ CONTENT ERROR" + err.Error())
+	}
 	if haveFrontMatter {
-		body[KeyRawContent] = cleanMdContent(reader, basePath, location)
+		body[KeyRawContent] = content
 	} else {
-		body[KeyRawContent] = append(firstLine,cleanMdContent(reader, basePath, location)...)
+		body[KeyRawContent] = append(firstLine,content...)
 	}
 	return body, nil
 }
@@ -159,7 +165,6 @@ func ReadArticles(srcDir , basePath string) (articles Articles, err error) {
 	rendererParameters.AbsolutePrefix = htmlPrefix
 
 
-	renderer := blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", rendererParameters)
 	extensions := 0
 	extensions |= blackfriday.EXTENSION_TABLES
 	extensions |= blackfriday.EXTENSION_FENCED_CODE
@@ -172,19 +177,26 @@ func ReadArticles(srcDir , basePath string) (articles Articles, err error) {
 	extensions |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
 	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
 	extensions |= blackfriday.EXTENSION_DEFINITION_LISTS
+
 	//for trim relative path
 	if !strings.HasSuffix(srcDir, "/") {
 		srcDir += "/"
 	}
 	for _, sourceFile := range sourceFiles {
-		article, readErr := ReadArticle(srcDir,basePath,sourceFile)
+		article, readErr := ReadArticle(srcDir,sourceFile)
 		if readErr != nil {
 			log.Printf("Skipping file %v due to parse error: %v", sourceFile, readErr)
 			continue
 		}
+		location := strings.TrimSuffix(strings.TrimPrefix(sourceFile, srcDir), path.Ext(sourceFile))
+		renderer := &HTMLRenderer{
+			basePath: basePath,
+			location:location,
+			Renderer:         blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", rendererParameters),
+		}
 		htmlContent := blackfriday.Markdown(article[KeyRawContent].([]byte), renderer, extensions)
 		//repalce for the internal markdown (KEEP IT SIMPLE)
-		htmlContent = bytes.Replace(htmlContent,[]byte(`href="` + PrefixInternalMarkDown),[]byte(`data-internalmd href="`), -1)
+		//htmlContent = bytes.Replace(htmlContent,[]byte(`href="` + PrefixInternalMarkDown),[]byte(`data-internalmd href="`), -1)
 		article[KeyHtml] = string(htmlContent)
 		articles = append(articles, &article)
 	}

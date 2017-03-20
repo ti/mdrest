@@ -5,14 +5,11 @@ import (
 	"fmt"
 	"strings"
 	"path/filepath"
-	"bufio"
 	"bytes"
 	"sync"
 	"unicode/utf8"
 	"unicode"
 )
-
-const PrefixInternalMarkDown = "/MDREST_INTERNAL_MARKDOWN/"
 
 func StringToDate(s string) (time.Time, error) {
 	return parseDateWith(s, []string{
@@ -38,38 +35,6 @@ func StringToDate(s string) (time.Time, error) {
 }
 
 
-//cleanMdContent covert relative path to abs path
-func cleanMdContent(reader *bufio.Reader, basePath, location string) []byte {
-	lineBreak := byte('\n')
-	codeBoundary := []byte("```")
-	var mdBytes []byte
-	var inCode bool
-	for {
-		line,_, lineErr := reader.ReadLine()
-		if lineErr != nil {
-			break
-		}
-		if bytes.HasPrefix(line, codeBoundary) {
-			inCode = !(inCode)
-		}
-		if !inCode {
-			//[a link ](path/to/your/file "Logo Title Text 1")
-			//![a image](path/to/your/img.png "Logo Title Text 1")
-			//[logo]: path/to/your/img.png
-			if bytes.HasPrefix(line, []byte("![")) || bytes.HasPrefix(line, []byte("[")) {
-				line = cleanLine(line, basePath,location )
-			}
-		}
-		line = append(line,lineBreak)
-		mdBytes  = append(mdBytes, line...)
-	}
-	var contentBuffer bytes.Buffer
-	reader.WriteTo(&contentBuffer)
-	mdBytes  = append(mdBytes, contentBuffer.Bytes()...)
-	return mdBytes
-}
-
-
 
 func parseDateWith(s string, dates []string) (d time.Time, e error) {
 	for _, dateType := range dates {
@@ -81,92 +46,12 @@ func parseDateWith(s string, dates []string) (d time.Time, e error) {
 }
 
 
-/**
-lines := [][]byte {
-		[]byte(`[a link ](../file)`),
-		[]byte(`[a link ](path/to/your/file "Logo Title Text 1")`),
-		[]byte(`![a image](path/to/your/img.png "Logo Title Text 1")`),
-		[]byte(`[logo]: path/to/your/img.png`),
-
-	}
-
-**/
-func cleanLine(line []byte, basePath, location string) []byte {
-	leftBoundary := byte(']')
-	rightBoundary := byte(')')
-	quotes := byte('"')
-	leftIdx := -1
-	rightIdx := -1
-	quotesIdx := -1
-	nopath := []byte("://")
-	leftSign1 := []byte("](")
-	leftSign2 := []byte("]:")
-	nopathBoundary := nopath[0]
-	for i, v := range line {
-		switch v {
-		case nopathBoundary:{
-			if bytes.Equal(line[i:i+3], nopath) {
-				return line
-			}
-		}
-		//only //[a link ](.. and ]:...
-		case leftBoundary:
-			leftSign := line[i:i+2]
-			if !(bytes.Equal(leftSign, leftSign1) || bytes.Equal(leftSign, leftSign2)){
-				return line
-			}
-			if leftIdx > 0 {
-				continue
-			}
-			leftIdx = i
-		case quotes:
-			if quotesIdx > 0 {
-				continue
-			}
-			quotesIdx = i
-		case rightBoundary:
-			if rightIdx > 0 {
-				continue
-			}
-			rightIdx = i
-		}
-	}
-	if leftIdx < 2 {
-		return line
-	}
-	var t []byte
-	if rightIdx > 0 {
-		if quotesIdx > 0 {
-			t = line[leftIdx+2:quotesIdx-1]
-		} else {
-			t = line[leftIdx+2:rightIdx]
-		}
-	} else {
-		t = bytes.TrimPrefix(line[leftIdx+2:],[]byte(" "))
-	}
-	absPath := []byte(AbsPath(basePath,location,string(t)))
-	line = bytes.Replace(line,t, absPath,1)
-	return line
-}
-
-
-//AbsPath absolute path
-//currentLocation is where the file is , exp /your/path/web/index.html
-
-//for some intreanl md file
-
-//exp: your/path/x.md append /key_internal_markdown/, so in html
-//you can replace <a href="/key_internal_markdown/ <a class="interanl_md" href="#
-
 func AbsPath(basePath, currentLocation, path string) string {
 	if strings.HasPrefix(path, "#")  || strings.HasPrefix(path, "/") {
 		return path
 	}
 	wd := filepath.Dir(currentLocation)
 	result := filepath.Join(wd, path)
-	if strings.HasSuffix(path, ".md") {
-		return PrefixInternalMarkDown + strings.Replace(result[:len(result)-3]," ","%20",-1)
-	}
 	return basePath + result
 }
 

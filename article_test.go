@@ -8,7 +8,7 @@ import (
 
 func TestReadArticle(t *testing.T) {
 	dir := "/Users/leenanxi/go/src/git.tiup.us/go/mdjson/do/content/mm/hwo_to.md"
-	ar, err := ReadArticle("", "",dir)
+	ar, err := ReadArticle("",dir)
 	if err != nil {
 		log.Println(err)
 	}
