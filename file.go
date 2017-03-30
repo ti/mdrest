@@ -14,9 +14,9 @@ import (
 
 
 const (
-	indexName  = "_index.json"    //full index file, include "title, summery, tags, ohters"
-	searchIndexName  = "_search_index.json" //index just for search, just include  "title, text, tags"
-	siteMapName  = "_sitemap.json"
+	indexName  = "mdrest_index.json"    //full index file, include "title, summery, tags, ohters"
+	searchIndexName  = "mdrest_search_index.json" //index just for search, just include  "title, text, tags"
+	siteMapName  = "mdrest_sitemap.json"
 )
 
 func (this Articles) WriteAllFiles(distDir, fileType string)  {

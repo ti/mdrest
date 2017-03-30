@@ -1,8 +1,8 @@
 {
   "Watch": false,
-  "BasePath": "/app/docs/",
-  "SrcDir": "/Users/leenanxi/go/src/github.com/leenanxi/mdrest/sample_docs",
-  "OutputType": "html",
+  "BasePath": "/",
+  "SrcDir": "../",
+  "OutputType": "json",
   "SiteMapDeep": 2,
   "DistDir": "",
   "NoLogging": false,

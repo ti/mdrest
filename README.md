@@ -17,9 +17,9 @@ Digitize your Markdown documents by Json and html for restful app
 Before                                 After
 
 sample_docs                            data
-├── Simple Article.md                  ├── _index.json
-├── YAML Article.md                    ├── _search_index.json
-├── _DraftArticle.md                   ├── _sitemap.json
+├── Simple Article.md                  ├── mdrest_index.json
+├── YAML Article.md                    ├── mdrest_search_index.json
+├── _DraftArticle.md                   ├── mdrest_sitemap.json
 ├── first dir                          ├── first dir
 │   ├── Hello word.md                  │   └── hello word.html
 │   └── img                            ├── second dir
@@ -37,9 +37,9 @@ in config.json, set OutputType "json"
 Before                                 After
 
 sample_docs                            data
-├── Simple Article.md                  ├── _index.json
-├── YAML Article.md                    ├── _search_index.json
-├── _DraftArticle.md                   ├── _sitemap.json
+├── Simple Article.md                  ├── mdrest_index.json
+├── YAML Article.md                    ├── mdrest_search_index.json
+├── _DraftArticle.md                   ├── mdrest_sitemap.json
 ├── first dir                          ├── first dir
 │   ├── Hello word.md                  │   └── hello word.json
 │   └── img                            ├── second dir
@@ -123,7 +123,7 @@ After
 }
 ```
 
-### _sitemap.json (config.SiteMapDeep is 2)
+### mdrest_sitemap.json (config.SiteMapDeep is 2)
 
 ```json 
 [
@@ -155,7 +155,7 @@ After
   }
 ]
 ```
-### _search_index.json
+### mdrest_search_index.json
 
 ```json
 [
@@ -196,4 +196,4 @@ make
 cd build
 ./mdrest
 ```
-then check out  sample_docs/_web/data/*
+then check out  sample_docs/web/data/*
