@@ -134,7 +134,7 @@ func (this Articles) WriteIndexFile(distDir string) {
 		text := StripHTML((*article)[KeyHtml].(string))
 		delete(arti, KeyRawContent)
 		delete(arti, KeyHtml)
-		arti[KeySummary], arti["truncated"] = StripSummary(text,false, 70)
+		arti[KeySummary], arti["truncated"] = StripSummary(text,true, 70)
 		indexArticles = append(indexArticles, &arti)
 		//for search
 		searchArticle := make(Article)
