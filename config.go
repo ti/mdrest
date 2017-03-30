@@ -11,4 +11,3 @@ type Config struct {
 	NoIndex    bool
 	NoSiteMap  bool
 }
-

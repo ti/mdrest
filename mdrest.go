@@ -37,7 +37,7 @@ func (mj *MdRest) Do()  error {
 		mj.cfg.SrcDir += "/"
 	}
 	if mj.cfg.DistDir == "" {
-		mj.cfg.DistDir  = mj.cfg.SrcDir + "web/data"
+		mj.cfg.DistDir  = mj.cfg.SrcDir + "assets/mdrest"
 	}
 	if !mj.cfg.NoLogging {
 		log.Println("Genrating files to", mj.cfg.DistDir)
