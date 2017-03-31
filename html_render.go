@@ -20,10 +20,25 @@ func (renderer *HTMLRenderer) Link(out *bytes.Buffer, link []byte, title []byte,
 }
 
 func (renderer *HTMLRenderer) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
-	if bytes.HasPrefix(link,[]byte(".")) || !bytes.Contains(link, []byte("://")) {
+	if !(bytes.HasPrefix(link, []byte("http://")) || bytes.HasPrefix(link, []byte("https://"))) {
 		link = []byte(AbsPath(renderer.basePath, renderer.location,string(link)))
 	}
-	renderer.Renderer.Image(out, link, title, alt)
+	out.WriteString(`<div class="image-package"><img src="`)
+	out.Write(link)
+	out.WriteString(`" alt="`)
+	out.Write(alt)
+	out.WriteString(`"`)
+	if title != nil {
+		out.WriteString(` title="`)
+		out.Write(title)
+		out.WriteString(`"/>`)
+		out.WriteString(`<div class="caption">`)
+		out.Write(title)
+		out.WriteString(`</div>`)
+	} else {
+		out.WriteString(`/>`)
+	}
+	out.WriteString(`</div>`)
 }
 
 // ListItem adds task list support to the Blackfriday renderer.
