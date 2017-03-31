@@ -63,16 +63,20 @@ func (mj *MdRest) Do()  error {
 	}
 
 	if mj.cfg.Server {
+		srvDir := mj.cfg.DistDir
+		if strings.HasPrefix(mj.cfg.DistDir,mj.cfg.SrcDir){
+			srvDir = mj.cfg.SrcDir
+		}
 		if (mj.cfg.Watch){
 			go func() {
 				log.Printf("start mdrest apis on addr %s\n", mj.cfg.ServerAddr)
-				if err := http.ListenAndServe(mj.cfg.ServerAddr, http.FileServer(http.Dir(mj.cfg.DistDir)));err != nil{
+				if err := http.ListenAndServe(mj.cfg.ServerAddr, http.FileServer(http.Dir(srvDir)));err != nil{
 					log.Fatalln(err.Error())
 				}
 			}()
 		} else {
 			log.Printf("start mdrest apis on addr %s\n", mj.cfg.ServerAddr)
-			if err := http.ListenAndServe(mj.cfg.ServerAddr, http.FileServer(http.Dir(mj.cfg.DistDir)));err != nil{
+			if err := http.ListenAndServe(mj.cfg.ServerAddr, http.FileServer(http.Dir(srvDir)));err != nil{
 				log.Fatalln(err.Error())
 			}
 		}

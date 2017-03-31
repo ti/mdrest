@@ -11,10 +11,10 @@ import (
 	"fmt"
 	"github.com/russross/blackfriday"
 	"strings"
-	"log"
 	"sort"
 	"path"
 	"io/ioutil"
+	"log"
 )
 
 const (
@@ -82,10 +82,12 @@ func ReadArticle(srcDir, fpath string) (Article, error) {
 	//check first line for if it have fontmatter
 	firstLine,  lineErr := reader.ReadBytes(byte('\n'))
 	var haveFrontMatter bool
-	var body map[string]interface{}
+	var body = make(map[string]interface{})
 	if lineErr == nil && bytes.HasPrefix(firstLine,[]byte("---")){
 		haveFrontMatter = true
-		body, _ = parseFrontMatter(reader)
+		if front, err := parseFrontMatter(reader); err == nil{
+			body = front
+		}
 	} else {
 		body = make(map[string]interface{})
 	}
@@ -100,11 +102,25 @@ func ReadArticle(srcDir, fpath string) (Article, error) {
 		body[KeyDate] = fileInfo.ModTime()
 	}
 	if _, ok := body[KeyTitle]; !ok {
-		body[KeyTitle] = strings.TrimSuffix(path.Base(fpath),path.Ext(fpath))
+		var title string
+		if bytes.HasPrefix(firstLine, []byte("# ")) {
+			title = string(firstLine)[2:]
+			firstLine = nil
+		} else{
+			bodyTitle, content := parseBodyTitle(reader)
+			if bodyTitle != "" {
+				title = string(bodyTitle)
+			} else {
+				firstLine = content
+				haveFrontMatter = false
+				title = strings.TrimSuffix(path.Base(fpath),path.Ext(fpath))
+			}
+		}
+		body[KeyTitle] = title
 	}
+
 	location := strings.TrimSuffix(strings.TrimPrefix(fpath, srcDir), path.Ext(fpath))
 	body[KeyLocation] = strings.ToLower(location)
-
 	content, err := ioutil.ReadAll(reader)
 	if err != nil {
 		panic("READ CONTENT ERROR" + err.Error())
@@ -117,6 +133,28 @@ func ReadArticle(srcDir, fpath string) (Article, error) {
 	return body, nil
 }
 
+func parseBodyTitle(reader *bufio.Reader) (title string, content[]byte) {
+	var maxTryLines = 5
+	lineBreak := byte('\n')
+	boundary := []byte("# ")
+	boundaryLen := len(boundary)
+	for i :=0; i< maxTryLines; i++{
+		line, lineErr := reader.ReadBytes(lineBreak)
+		if lineErr != nil {
+			break
+		}
+		if(len(line)<=boundaryLen){
+			continue
+		}
+		if bytes.HasPrefix(line, boundary) {
+			title := line[boundaryLen:]
+			return  string(title), nil
+		} else {
+			return "", line
+		}
+	}
+	return "",nil
+}
 
 // ParseFrontMatter reads the front matter-type article header
 func parseFrontMatter(reader *bufio.Reader) (map[string]interface{}, error) {
@@ -137,11 +175,14 @@ func parseFrontMatter(reader *bufio.Reader) (map[string]interface{}, error) {
 	//convert yaml to jsonable map struct, for some advaced users
 	jsb, err := jyaml.YAMLToJSON(frontMatterBytes)
 	if err != nil {
-		return data, errors.New("can not covert front matter header to json")
+		return nil, errors.New("can not covert front matter header to json")
 	}
 	err = json.Unmarshal(jsb, &data)
 	if err != nil {
-		return data, errors.New("can not unmarshal front matter header to map object")
+		return nil, errors.New("can not unmarshal front matter header to map object")
+	}
+	if len(data) == 0 {
+		return nil, errors.New("empty matter")
 	}
 	return data, nil
 }
