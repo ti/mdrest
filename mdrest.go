@@ -7,12 +7,18 @@ import (
 	"log"
 	"fmt"
 	"path/filepath"
+	"net/http"
 )
 
 type MdRest struct {
 	cfg  *Config
 }
 
+
+func Load(configPath string) *MdRest {
+	cfg := LoadConfig(configPath)
+	return New(cfg)
+}
 func New(config *Config) *MdRest {
 	return &MdRest {
 		cfg:config,
@@ -21,9 +27,6 @@ func New(config *Config) *MdRest {
 
 //Write files
 func (mj *MdRest) Do()  error {
-	if mj.cfg.SrcDir == "" {
-		mj.cfg.SrcDir = "./"
-	}
 	var err error
 	if mj.cfg.SrcDir, err =  filepath.Abs(mj.cfg.SrcDir); err != nil {
 		return err
@@ -50,9 +53,6 @@ func (mj *MdRest) Do()  error {
 	if err := os.MkdirAll(mj.cfg.DistDir, os.ModePerm); err != nil {
 		return fmt.Errorf("Can not make dist dir %v", err)
 	}
-	if mj.cfg.OutputType == "" {
-		mj.cfg.OutputType = "json"
-	}
 	articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType, mj.cfg.IsCJKLanguage)
 	if !mj.cfg.NoLogging {
 		if len(articles) == 0 {
@@ -60,6 +60,24 @@ func (mj *MdRest) Do()  error {
 		} else {
 			log.Printf("Write success %v articles data is generated \n", len(articles))
 		}
+	}
+
+	if mj.cfg.Server {
+		if (mj.cfg.Watch){
+			go func() {
+				log.Printf("start mdrest apis on addr %s\n", mj.cfg.ServerAddr)
+				if err := http.ListenAndServe(mj.cfg.ServerAddr, http.FileServer(http.Dir(mj.cfg.DistDir)));err != nil{
+					log.Fatalln(err.Error())
+				}
+			}()
+		} else {
+			log.Printf("start mdrest apis on addr %s\n", mj.cfg.ServerAddr)
+			if err := http.ListenAndServe(mj.cfg.ServerAddr, http.FileServer(http.Dir(mj.cfg.DistDir)));err != nil{
+				log.Fatalln(err.Error())
+			}
+		}
+
+
 	}
 	if mj.cfg.Watch {
 		if !mj.cfg.NoLogging {

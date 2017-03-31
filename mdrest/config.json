@@ -1,11 +1,14 @@
 {
+  "IsCJKLanguage":true,
   "Watch": false,
+  "Server":false,
   "BasePath": "/",
-  "SrcDir": "../",
-  "OutputType": "html",
+  "SrcDir": "../sample_docs",
+  "OutputType": "json",
   "SiteMapDeep": 2,
   "DistDir": "",
   "NoLogging": false,
   "NoIndex": false,
-  "NoSiteMap": false
+  "NoSiteMap": false,
+  "ServerAddr":":9527"
 }

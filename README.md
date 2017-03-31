@@ -194,6 +194,6 @@ go get github.com/ghodss/yaml
 cd git.tiup.us/linx/mdjson
 make
 cd build
-./mdrest
+./mdrest -c config.json
 ```
 then check out  sample_docs/web/data/*
