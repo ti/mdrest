@@ -5,7 +5,7 @@ BUILD_DIR =  ./build/
 all: clean  build
 
 build:
-	go build -o $(BUILD_DIR)/mdrest ./mdrest
+	go build -o $(BUILD_DIR)mdrest ./mdrest
 	cp mdrest/config.json $(BUILD_DIR)
 clean:
 	rm -rf $(BUILD_DIR)
