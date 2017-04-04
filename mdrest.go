@@ -53,7 +53,7 @@ func (mj *MdRest) Do()  error {
 	if err := os.MkdirAll(mj.cfg.DistDir, os.ModePerm); err != nil {
 		return fmt.Errorf("Can not make dist dir %v", err)
 	}
-	articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType, mj.cfg.IsCJKLanguage)
+	articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType)
 	if !mj.cfg.NoLogging {
 		if len(articles) == 0 {
 			log.Println("no articles to generated")
@@ -104,7 +104,7 @@ func (mj *MdRest) Do()  error {
 			}
 			os.Remove(mj.cfg.DistDir)
 			os.MkdirAll(mj.cfg.DistDir, os.ModePerm)
-			articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType,mj.cfg.IsCJKLanguage)
+			articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType)
 		})
 	}
 	return  nil

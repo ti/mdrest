@@ -57,15 +57,32 @@ func AbsPath(basePath, currentLocation, path string) string {
 
 
 
-func StripSummary(text string, isCJKLanguage bool, summaryLength int) (summary string, truncated bool) {
-	if isCJKLanguage {
-		summary, truncated = TruncateWordsByRune(strings.Fields(text), summaryLength)
-	} else {
-		summary, truncated = TruncateWordsToWholeSentence(text, summaryLength)
+// StripSummary truncates words by runes.
+func StripSummary(text string,max int) (summary string, truncated bool) {
+	words := strings.Fields(text)
+	count := 0
+	for index, word := range words {
+		if count >= max {
+			return strings.Join(words[:index], " "), true
+		}
+		runeCount := utf8.RuneCountInString(word)
+		if len(word) == runeCount {
+			count++
+		} else if count+runeCount < max {
+			count += runeCount
+		} else {
+			for ri := range word {
+				if count >= max {
+					truncatedWords := append(words[:index], word[:ri])
+					return strings.Join(truncatedWords, " "), true
+				}
+				count++
+			}
+		}
 	}
-	return
-
+	return strings.Join(words, " "), false
 }
+
 
 var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
 
@@ -111,77 +128,5 @@ func StripHTML(s string) string {
 	}
 	return  b.String()
 }
-
-// TruncateWordsByRune truncates words by runes.
-func TruncateWordsByRune(words []string, max int) (string, bool) {
-	count := 0
-	for index, word := range words {
-		if count >= max {
-			return strings.Join(words[:index], " "), true
-		}
-		runeCount := utf8.RuneCountInString(word)
-		if len(word) == runeCount {
-			count++
-		} else if count+runeCount < max {
-			count += runeCount
-		} else {
-			for ri := range word {
-				if count >= max {
-					truncatedWords := append(words[:index], word[:ri])
-					return strings.Join(truncatedWords, " "), true
-				}
-				count++
-			}
-		}
-	}
-
-	return strings.Join(words, " "), false
-}
-
-// TruncateWordsToWholeSentence takes content and truncates to whole sentence
-// limited by max number of words. It also returns whether it is truncated.
-func TruncateWordsToWholeSentence(s string, max int) (string, bool) {
-
-	var (
-		wordCount     = 0
-		lastWordIndex = -1
-	)
-
-	for i, r := range s {
-		if unicode.IsSpace(r) {
-			wordCount++
-			lastWordIndex = i
-
-			if wordCount >= max {
-				break
-			}
-
-		}
-	}
-
-	if lastWordIndex == -1 {
-		return s, false
-	}
-
-	endIndex := -1
-
-	for j, r := range s[lastWordIndex:] {
-		if isEndOfSentence(r) {
-			endIndex = j + lastWordIndex + utf8.RuneLen(r)
-			break
-		}
-	}
-
-	if endIndex == -1 {
-		return s, false
-	}
-
-	return strings.TrimSpace(s[:endIndex]), endIndex < len(s)
-}
-
-func isEndOfSentence(r rune) bool {
-	return r == '.' || r == '?' || r == '!' || r == '"' || r == '\n'
-}
-
 
 

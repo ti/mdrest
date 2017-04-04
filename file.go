@@ -19,8 +19,8 @@ const (
 	siteMapName  = "mdrest_sitemap.json"
 )
 
-func (this Articles) WriteAllFiles(distDir, fileType string, isCJKLanguage bool)  {
-	this.WriteIndexFile(distDir, isCJKLanguage)
+func (this Articles) WriteAllFiles(distDir, fileType string)  {
+	this.WriteIndexFile(distDir)
 	this.WriteFiles(distDir, fileType)
 	this.WriteSiteMapFile(distDir,2)
 }
@@ -120,7 +120,7 @@ func (this Articles) WriteSiteMapFile(distDir string, deep int) {
 }
 
 
-func (this Articles) WriteIndexFile(distDir string, isCJKLanguage bool) {
+func (this Articles) WriteIndexFile(distDir string) {
 	if !strings.HasSuffix(distDir,"/") {
 		distDir += "/"
 	}
@@ -134,7 +134,7 @@ func (this Articles) WriteIndexFile(distDir string, isCJKLanguage bool) {
 		text := StripHTML((*article)[KeyHtml].(string))
 		delete(arti, KeyRawContent)
 		delete(arti, KeyHtml)
-		arti[KeySummary], arti["truncated"] = StripSummary(text,isCJKLanguage, 70)
+		arti[KeySummary], arti["truncated"] = StripSummary(text, 80)
 		indexArticles = append(indexArticles, &arti)
 		//for search
 		searchArticle := make(Article)
