@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"log"
-	"github.com/leenanxi/mdrest"
+	"github.com/ti/mdrest"
 )
 
 func main() {
