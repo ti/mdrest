@@ -1,7 +1,7 @@
 {
   "Watch": false,
   "Server":false,
-  "BasePath": "/",
+  "BasePath": "http://127.0.0.1:9527/",
   "SrcDir": "../sample_docs",
   "OutputType": "json",
   "SiteMapDeep": 2,

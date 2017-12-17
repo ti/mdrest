@@ -7,11 +7,12 @@ import (
 )
 
 func TestReadArticle(t *testing.T) {
-	dir := "/Users/leenanxi/go/src/git.tiup.us/go/mdjson/do/content/mm/hwo_to.md"
-	ar, err := ReadArticle("",dir)
+	dir := "/Users/leenanxi/Documents/go/src/github.com/ti/mdrest/sample_docs/first dir/image.md"
+	ar, err := ReadArticle("",dir,"https://static.lnx.cm/")
 	if err != nil {
 		log.Println(err)
 	}
+
 	_ = ar
 }
 

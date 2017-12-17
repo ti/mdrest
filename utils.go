@@ -45,7 +45,7 @@ func parseDateWith(s string, dates []string) (d time.Time, e error) {
 	return d, fmt.Errorf("Unable to parse date: %s", s)
 }
 
-
+//AbsPath return real image path
 func AbsPath(basePath, currentLocation, path string) string {
 	if strings.HasPrefix(path, "#")  || strings.HasPrefix(path, "/") {
 		return path

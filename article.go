@@ -5,16 +5,16 @@ import (
 	"bytes"
 	"errors"
 	"time"
-	jyaml "github.com/ghodss/yaml"
 	"encoding/json"
 	"os"
 	"fmt"
-	"github.com/russross/blackfriday"
 	"strings"
 	"sort"
 	"path"
 	"io/ioutil"
 	"log"
+	"github.com/russross/blackfriday"
+	jyaml "github.com/ghodss/yaml"
 )
 
 const (
@@ -25,6 +25,7 @@ const (
 	KeyText = "text"
 	KeySummary = "summary"
 	KeyRawContent = "raw_content"
+	KeyPicture  = "picture"
 )
 
 type Article map[string]interface{}
@@ -72,7 +73,7 @@ func (a Articles) Remove(location string) *Article {
 
 
 // ReadArticle returns an article read from a Reader
-func ReadArticle(srcDir, fpath string) (Article, error) {
+func ReadArticle(srcDir, fpath string, basePath string) (Article, error) {
 	file, err := os.Open(fpath)
 	if err != nil {
 		return nil, err
@@ -101,6 +102,19 @@ func ReadArticle(srcDir, fpath string) (Article, error) {
 	} else {
 		body[KeyDate] = fileInfo.ModTime()
 	}
+
+	if pic, ok := body[KeyPicture]; ok {
+		if picLink, ok  := pic.(string); ok {
+			if !(strings.HasPrefix(picLink, "http://") || strings.HasPrefix(picLink, "https://")) {
+				if strings.HasPrefix(picLink,"/")  {
+					body[KeyPicture] = basePath + picLink[1:]
+				} else {
+					picturePath := strings.TrimPrefix(AbsPath("", fpath, picLink),srcDir)
+					body[KeyPicture] = basePath + picturePath
+				}
+			}
+		}
+	}
 	if _, ok := body[KeyTitle]; !ok {
 		var title string
 		if bytes.HasPrefix(firstLine, []byte("# ")) {
@@ -120,7 +134,9 @@ func ReadArticle(srcDir, fpath string) (Article, error) {
 	}
 
 	location := strings.TrimSuffix(strings.TrimPrefix(fpath, srcDir), path.Ext(fpath))
-	body[KeyLocation] = strings.ToLower(location)
+	//body[KeyLocation] = strings.ToLower(location)
+	//fix location case
+	body[KeyLocation] = location
 	content, err := ioutil.ReadAll(reader)
 	if err != nil {
 		panic("READ CONTENT ERROR" + err.Error())
@@ -224,7 +240,7 @@ func ReadArticles(srcDir , basePath string) (articles Articles, err error) {
 		srcDir += "/"
 	}
 	for _, sourceFile := range sourceFiles {
-		article, readErr := ReadArticle(srcDir,sourceFile)
+		article, readErr := ReadArticle(srcDir,sourceFile,basePath)
 		if readErr != nil {
 			log.Printf("Skipping file %v due to parse error: %v", sourceFile, readErr)
 			continue
