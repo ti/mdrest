@@ -2,6 +2,8 @@
 
 Digitize your Markdown documents by Json and html for restful app
 
+DEFAULT THEME (Material Design): https://github.com/ti/mdrest.mdl
+
 ## Features
 
 * md files to html and json
