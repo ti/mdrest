@@ -3,7 +3,7 @@ package mdrest
 import (
 	"strings"
 	"os"
-	"gopkg.in/fsnotify.v1"
+	"github.com/fsnotify/fsnotify"
 	"log"
 	"path"
 	"path/filepath"

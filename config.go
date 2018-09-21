@@ -1,7 +1,7 @@
 package mdrest
 
 import (
-	"gopkg.in/square/go-jose.v1/json"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 )
