@@ -130,6 +130,7 @@ func ReadArticle(srcDir, fpath string, basePath string) (Article, error) {
 				title = strings.TrimSuffix(path.Base(fpath),path.Ext(fpath))
 			}
 		}
+		title = strings.TrimSuffix(title,"\n")
 		body[KeyTitle] = title
 	}
 
