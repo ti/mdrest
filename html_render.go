@@ -1,8 +1,8 @@
 package mdrest
 
 import (
-	"github.com/russross/blackfriday"
 	"bytes"
+	"github.com/russross/blackfriday"
 	"strings"
 )
 
@@ -41,31 +41,34 @@ func (renderer *HTMLRenderer) Image(out *bytes.Buffer, link []byte, title []byte
 	out.WriteString(`</div>`)
 }
 
+/***
+<div class="tabs">
+    <input id="515736620" type="radio" name="tab" checked="checked"/>
+    <label for="515736620">Golang</label>
+    <section>1</section>
+    <input id="479272831" type="radio" name="tab"/>
+    <label for="479272831">Bash</label>
+    <section>2</section>
+    <input id="479272834" type="radio" name="tab"/>
+    <label for="479272834">Test</label>
+    <section>3</section>
+</div>
+ */
+
+const tabTpl = `<input id="%d" type="radio" name="tab" checked="checked"/><label for="%d">%s</label><section>%s</section>`
+
 // ListItem adds task list support to the Blackfriday renderer.
 func (renderer *HTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
+   if bytes.HasPrefix(text, []byte(`<p>[ ] `)) {
+		right := bytes.Index(text,[]byte("</p>"))
+		text = []byte(`[ ] ` + string(text[7:right]) + string(text[right+4:]))
+	}
 	switch {
 	case bytes.HasPrefix(text, []byte("[ ] ")):
-		text = append([]byte(`<input type="checkbox" disabled class="task-list-item">`), text[3:]...)
+		text = append([]byte(`<input type="checkbox" disabled />`), text[3:]...)
 
 	case bytes.HasPrefix(text, []byte("[x] ")) || bytes.HasPrefix(text, []byte("[X] ")):
-		text = append([]byte(`<input type="checkbox" checked disabled class="task-list-item">`), text[3:]...)
+		text = append([]byte(`<input type="checkbox" checked disabled />`), text[3:]...)
 	}
 	renderer.Renderer.ListItem(out, text, flags)
 }
-
-// List adds task list support to the Blackfriday renderer.
-func (renderer *HTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) {
-	marker := out.Len()
-	renderer.Renderer.List(out, text, flags)
-	if out.Len() > marker {
-		list := out.Bytes()[marker:]
-		if bytes.Contains(list, []byte("task-list-item")) {
-			// Rewrite the buffer from the marker
-			out.Truncate(marker)
-			// May be either dl, ul or ol
-			list := append(list[:4], append([]byte(` class="task-list"`), list[4:]...)...)
-			out.Write(list)
-		}
-	}
-}
-

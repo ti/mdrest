@@ -18,9 +18,9 @@ const (
 	siteMapName     = "mdrest_sitemap.json"
 )
 
-func (this Articles) WriteAllFiles(distDir, fileType string, noSummery bool) {
+func (this Articles) WriteAllFiles(distDir, fileType string, noSummery, noMinify bool) {
 	this.WriteIndexFile(distDir, noSummery)
-	this.WriteFiles(distDir, fileType)
+	this.WriteFiles(distDir, fileType, noMinify)
 	this.WriteSiteMapFile(distDir, 2)
 }
 
@@ -53,7 +53,7 @@ func ReadFiles(srcDir string) (files []string, err error) {
 }
 
 //WriteJsonFiles
-func (this Articles) WriteFiles(distDir string, ftype string) {
+func (this Articles) WriteFiles(distDir string, ftype string, noMinify bool) {
 	basePath := ""
 	if !strings.HasSuffix(distDir, "/") {
 		distDir += "/"
@@ -71,12 +71,15 @@ func (this Articles) WriteFiles(distDir string, ftype string) {
 		var bytes []byte
 		var err error
 
-		m := minify.New()
-		m.AddFunc("text/html", html.Minify)
 		htmlContent := []byte(arti[KeyHtml].(string))
-		if out, err := m.Bytes("text/html", htmlContent); err == nil {
-			htmlContent = out
+		if !noMinify {
+			m := minify.New()
+			m.AddFunc("text/html", html.Minify)
+			if out, err := m.Bytes("text/html", htmlContent); err == nil {
+				htmlContent = out
+			}
 		}
+
 		if ftype == "json" {
 			delete(arti, KeyRawContent)
 			bytes, err = json.Marshal(arti)

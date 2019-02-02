@@ -42,7 +42,7 @@ func (mj *MdRest) Do() error {
 		mj.cfg.DistDir = mj.cfg.SrcDir + "assets/mdrest"
 	}
 	if !mj.cfg.NoLogging {
-		log.Println("Genrating files to", mj.cfg.DistDir)
+		fmt.Println("Genrating files to", mj.cfg.DistDir)
 	}
 	articles, err := ReadArticles(mj.cfg.SrcDir, mj.cfg.BasePath)
 	if err != nil {
@@ -52,12 +52,12 @@ func (mj *MdRest) Do() error {
 	if err := os.MkdirAll(mj.cfg.DistDir, os.ModePerm); err != nil {
 		return fmt.Errorf("Can not make dist dir %v", err)
 	}
-	articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType, mj.cfg.NoSummary)
+	articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType, mj.cfg.NoSummary, mj.cfg.NoMinify)
 	if !mj.cfg.NoLogging {
 		if len(articles) == 0 {
 			log.Println("no articles to generated")
 		} else {
-			log.Printf("Write success %v articles data is generated \n", len(articles))
+			fmt.Printf("Write success %v articles data is generated \n", len(articles))
 		}
 	}
 
@@ -102,7 +102,7 @@ func (mj *MdRest) Do() error {
 			}
 			os.Remove(mj.cfg.DistDir)
 			os.MkdirAll(mj.cfg.DistDir, os.ModePerm)
-			articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType, mj.cfg.NoSummary)
+			articles.WriteAllFiles(mj.cfg.DistDir, mj.cfg.OutputType, mj.cfg.NoSummary, mj.cfg.NoMinify)
 		})
 	}
 	return nil
