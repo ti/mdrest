@@ -41,6 +41,19 @@ func (renderer *HTMLRenderer) Image(out *bytes.Buffer, link []byte, title []byte
 	out.WriteString(`</div>`)
 }
 
+/***
+<div class="tabs">
+    <input id="515736620" type="radio" name="tab" checked="checked"/>
+    <label for="515736620">Golang</label>
+    <section>1</section>
+    <input id="479272831" type="radio" name="tab"/>
+    <label for="479272831">Bash</label>
+    <section>2</section>
+    <input id="479272834" type="radio" name="tab"/>
+    <label for="479272834">Test</label>
+    <section>3</section>
+</div>
+ */
 
 
 // ListItem adds task list support to the Blackfriday renderer.
