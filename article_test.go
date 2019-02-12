@@ -1,9 +1,9 @@
 package mdrest
 
 import (
-	"testing"
-	"log"
 	"encoding/json"
+	"log"
+	"testing"
 )
 
 func TestReadArticle(t *testing.T) {

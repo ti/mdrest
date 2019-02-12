@@ -3,29 +3,29 @@ package mdrest
 import (
 	"bufio"
 	"bytes"
-	"errors"
-	"time"
 	"encoding/json"
-	"os"
+	"errors"
 	"fmt"
-	"strings"
-	"sort"
-	"path"
+	jyaml "github.com/ghodss/yaml"
+	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"log"
-	"github.com/russross/blackfriday"
-	jyaml "github.com/ghodss/yaml"
+	"os"
+	"path"
+	"sort"
+	"strings"
+	"time"
 )
 
 const (
-	KeyTitle = "title"
-	KeyDate  = "date"
-	KeyHtml  = "html"
-	KeyLocation = "location"
-	KeyText = "text"
-	KeySummary = "summary"
+	KeyTitle      = "title"
+	KeyDate       = "date"
+	KeyHtml       = "html"
+	KeyLocation   = "location"
+	KeyText       = "text"
+	KeySummary    = "summary"
 	KeyRawContent = "raw_content"
-	KeyPicture  = "picture"
+	KeyPicture    = "picture"
 )
 
 type Article map[string]interface{}
@@ -49,8 +49,6 @@ func (a Articles) Less(i, j int) bool {
 	return right.Before(left)
 }
 
-
-
 //Get By location
 func (a Articles) Get(location string) *Article {
 	for _, v := range a {
@@ -63,14 +61,13 @@ func (a Articles) Get(location string) *Article {
 
 func (a Articles) Remove(location string) *Article {
 	for i, v := range a {
-		if strings.HasPrefix((*v)[KeyLocation].(string),location) {
+		if strings.HasPrefix((*v)[KeyLocation].(string), location) {
 			a[i] = a[len(a)-1]
 			a = a[:len(a)-1]
 		}
 	}
 	return nil
 }
-
 
 // ReadArticle returns an article read from a Reader
 func ReadArticle(srcDir, fpath string, basePath string) (Article, error) {
@@ -81,18 +78,18 @@ func ReadArticle(srcDir, fpath string, basePath string) (Article, error) {
 	defer file.Close()
 	reader := bufio.NewReader(file)
 	//check first line for if it have fontmatter
-	firstLine,  lineErr := reader.ReadBytes(byte('\n'))
+	firstLine, lineErr := reader.ReadBytes(byte('\n'))
 	var haveFrontMatter bool
 	var body = make(map[string]interface{})
-	if lineErr == nil && bytes.HasPrefix(firstLine,[]byte("---")){
+	if lineErr == nil && bytes.HasPrefix(firstLine, []byte("---")) {
 		haveFrontMatter = true
-		if front, err := parseFrontMatter(reader); err == nil{
+		if front, err := parseFrontMatter(reader); err == nil {
 			body = front
 		}
 	} else {
 		body = make(map[string]interface{})
 	}
-	fileInfo , _ := file.Stat()
+	fileInfo, _ := file.Stat()
 	if date, ok := body[KeyDate]; ok {
 		if t, err := StringToDate(fmt.Sprint(date)); err == nil {
 			body[KeyDate] = t
@@ -104,12 +101,12 @@ func ReadArticle(srcDir, fpath string, basePath string) (Article, error) {
 	}
 
 	if pic, ok := body[KeyPicture]; ok {
-		if picLink, ok  := pic.(string); ok {
+		if picLink, ok := pic.(string); ok {
 			if !(strings.HasPrefix(picLink, "http://") || strings.HasPrefix(picLink, "https://")) {
-				if strings.HasPrefix(picLink,"/")  {
+				if strings.HasPrefix(picLink, "/") {
 					body[KeyPicture] = basePath + picLink[1:]
 				} else {
-					picturePath := strings.TrimPrefix(AbsPath("", fpath, picLink),srcDir)
+					picturePath := strings.TrimPrefix(AbsPath("", fpath, picLink), srcDir)
 					body[KeyPicture] = basePath + picturePath
 				}
 			}
@@ -120,17 +117,17 @@ func ReadArticle(srcDir, fpath string, basePath string) (Article, error) {
 		if bytes.HasPrefix(firstLine, []byte("# ")) {
 			title = string(firstLine)[2:]
 			firstLine = nil
-		} else{
+		} else {
 			bodyTitle, content := parseBodyTitle(reader)
 			if bodyTitle != "" {
 				title = string(bodyTitle)
 			} else {
 				firstLine = content
 				haveFrontMatter = false
-				title = strings.TrimSuffix(path.Base(fpath),path.Ext(fpath))
+				title = strings.TrimSuffix(path.Base(fpath), path.Ext(fpath))
 			}
 		}
-		title = strings.TrimSuffix(title,"\n")
+		title = strings.TrimSuffix(title, "\n")
 		body[KeyTitle] = title
 	}
 
@@ -145,32 +142,32 @@ func ReadArticle(srcDir, fpath string, basePath string) (Article, error) {
 	if haveFrontMatter {
 		body[KeyRawContent] = content
 	} else {
-		body[KeyRawContent] = append(firstLine,content...)
+		body[KeyRawContent] = append(firstLine, content...)
 	}
 	return body, nil
 }
 
-func parseBodyTitle(reader *bufio.Reader) (title string, content[]byte) {
+func parseBodyTitle(reader *bufio.Reader) (title string, content []byte) {
 	var maxTryLines = 5
 	lineBreak := byte('\n')
 	boundary := []byte("# ")
 	boundaryLen := len(boundary)
-	for i :=0; i< maxTryLines; i++{
+	for i := 0; i < maxTryLines; i++ {
 		line, lineErr := reader.ReadBytes(lineBreak)
 		if lineErr != nil {
 			break
 		}
-		if(len(line)<=boundaryLen){
+		if (len(line) <= boundaryLen) {
 			continue
 		}
 		if bytes.HasPrefix(line, boundary) {
 			title := line[boundaryLen:]
-			return  string(title), nil
+			return string(title), nil
 		} else {
 			return "", line
 		}
 	}
-	return "",nil
+	return "", nil
 }
 
 // ParseFrontMatter reads the front matter-type article header
@@ -205,7 +202,7 @@ func parseFrontMatter(reader *bufio.Reader) (map[string]interface{}, error) {
 }
 
 // ReadArticle returns an article read from a Reader
-func ReadArticles(srcDir , basePath string) (articles Articles, err error) {
+func ReadArticles(srcDir, basePath string) (articles Articles, err error) {
 	//read files
 	sourceFiles, err := ReadFiles(srcDir)
 	if err != nil {
@@ -218,10 +215,9 @@ func ReadArticles(srcDir , basePath string) (articles Articles, err error) {
 
 	var rendererParameters blackfriday.HtmlRendererParameters
 
-	htmlPrefix := "/"  //可能后面会用到
+	htmlPrefix := "/" //可能后面会用到
 	htmlPrefix = strings.TrimSuffix(htmlPrefix, "/")
 	rendererParameters.AbsolutePrefix = htmlPrefix
-
 
 	extensions := 0
 	extensions |= blackfriday.EXTENSION_TABLES
@@ -241,7 +237,7 @@ func ReadArticles(srcDir , basePath string) (articles Articles, err error) {
 		srcDir += "/"
 	}
 	for _, sourceFile := range sourceFiles {
-		article, readErr := ReadArticle(srcDir,sourceFile,basePath)
+		article, readErr := ReadArticle(srcDir, sourceFile, basePath)
 		if readErr != nil {
 			log.Printf("Skipping file %v due to parse error: %v", sourceFile, readErr)
 			continue
@@ -249,10 +245,12 @@ func ReadArticles(srcDir , basePath string) (articles Articles, err error) {
 		location := strings.TrimSuffix(strings.TrimPrefix(sourceFile, srcDir), path.Ext(sourceFile))
 		renderer := &HTMLRenderer{
 			basePath: basePath,
-			location:location,
-			Renderer:         blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", rendererParameters),
+			location: location,
+			Renderer: blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", rendererParameters),
 		}
+
 		htmlContent := blackfriday.Markdown(article[KeyRawContent].([]byte), renderer, extensions)
+
 		//repalce for the internal markdown (KEEP IT SIMPLE)
 		//htmlContent = bytes.Replace(htmlContent,[]byte(`href="` + PrefixInternalMarkDown),[]byte(`data-internalmd href="`), -1)
 		article[KeyHtml] = string(htmlContent)
@@ -262,5 +260,16 @@ func ReadArticles(srcDir , basePath string) (articles Articles, err error) {
 	return
 }
 
-
-
+/***
+<form class="tabs">
+    <input id="515736620" type="radio" name="tab" checked="checked"/>
+    <label for="515736620">Golang</label>
+    <section>1</section>
+    <input id="479272831" type="radio" name="tab"/>
+    <label for="479272831">Bash</label>
+    <section>2</section>
+    <input id="479272834" type="radio" name="tab"/>
+    <label for="479272834">Test</label>
+    <section>3</section>
+</form>
+ */

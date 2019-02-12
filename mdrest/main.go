@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	"log"
 	"github.com/ti/mdrest"
+	"log"
 )
 
 func main() {

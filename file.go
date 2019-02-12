@@ -1,6 +1,7 @@
 package mdrest
 
 import (
+	"fmt"
 	"strings"
 	"os"
 	"path"
@@ -18,9 +19,9 @@ const (
 	siteMapName     = "mdrest_sitemap.json"
 )
 
-func (this Articles) WriteAllFiles(distDir, fileType string, noSummery bool) {
+func (this Articles) WriteAllFiles(distDir, fileType string, noSummery, noMinify bool) {
 	this.WriteIndexFile(distDir, noSummery)
-	this.WriteFiles(distDir, fileType)
+	this.WriteFiles(distDir, fileType, noMinify)
 	this.WriteSiteMapFile(distDir, 2)
 }
 
@@ -53,7 +54,7 @@ func ReadFiles(srcDir string) (files []string, err error) {
 }
 
 //WriteJsonFiles
-func (this Articles) WriteFiles(distDir string, ftype string) {
+func (this Articles) WriteFiles(distDir string, ftype string, noMinify bool) {
 	basePath := ""
 	if !strings.HasSuffix(distDir, "/") {
 		distDir += "/"
@@ -71,12 +72,15 @@ func (this Articles) WriteFiles(distDir string, ftype string) {
 		var bytes []byte
 		var err error
 
-		m := minify.New()
-		m.AddFunc("text/html", html.Minify)
 		htmlContent := []byte(arti[KeyHtml].(string))
-		if out, err := m.Bytes("text/html", htmlContent); err == nil {
-			htmlContent = out
+		if !noMinify {
+			m := minify.New()
+			m.AddFunc("text/html", html.Minify)
+			if out, err := m.Bytes("text/html", htmlContent); err == nil {
+				htmlContent = out
+			}
 		}
+
 		if ftype == "json" {
 			delete(arti, KeyRawContent)
 			bytes, err = json.Marshal(arti)
@@ -109,13 +113,21 @@ func (this Articles) WriteSiteMapFile(distDir string, deep int) {
 	if !strings.HasSuffix(distDir, "/") {
 		distDir += "/"
 	}
-	siteMap := this.GetSiteMap(deep)
+	siteMapMd := this.GetSiteMapMarkdownFromReadme()
+	var siteMap Nodes
+	_ = markdownToNodes(siteMapMd, &siteMap)
+
+	siteMapMarkdown :=  this.GetSiteMap(deep).ToMarkdown()
+	fmt.Println("# SiteMap")
+
+	fmt.Println(siteMapMarkdown)
 	siteMapBytes, _ := json.Marshal(siteMap)
 	writeErr := ioutil.WriteFile(distDir+siteMapName, siteMapBytes, os.ModePerm)
 	if writeErr != nil {
 		log.Printf("Could not write file %v due to error: %v", siteMapName, writeErr)
 	}
 }
+
 
 func (this Articles) WriteIndexFile(distDir string, noSummery bool) {
 	if !strings.HasSuffix(distDir, "/") {

@@ -3,10 +3,11 @@
   "Server":false,
   "BasePath": "http://127.0.0.1:9527/",
   "SrcDir": "../sample_docs",
-  "OutputType": "json",
+  "OutputType": "html",
   "SiteMapDeep": 2,
   "DistDir": "",
   "NoLogging": false,
+  "NoMinify": true,
   "NoIndex": false,
   "NoSiteMap": false,
   "ServerAddr":":9527"

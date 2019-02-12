@@ -29,6 +29,7 @@ type Config struct {
 	SiteMapDeep int
 	DistDir     string
 	NoSummary   bool
+	NoMinify   bool
 	NoLogging   bool
 	NoIndex     bool
 	NoSiteMap   bool
