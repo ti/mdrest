@@ -11,7 +11,7 @@ const def_config = `
 	  "Watch": false,
 	  "BasePath": "",
 	  "SrcDir": "./",
-	  "OutputType": "json",
+	  "OutputType": "html",
 	  "SiteMapDeep": 2,
 	  "DistDir": "",
 	  "NoLogging": false,

@@ -6,13 +6,26 @@ import (
 	"log"
 )
 
+var src = flag.String("src", "", "markdown files src dir")
+var basePath = flag.String("base", "", "base path for assets url")
+var outType = flag.String("out", "html", "use html or json as output")
+var configFile = flag.String("c", "", "config file path")
+
 func main() {
-	var configFile string
-	flag.StringVar(&configFile, "c",  "", "config file")
 	flag.Parse()
-	mdj := mdrest.Load(configFile)
-	defer mdj.Close()
-	if err := mdj.Do(); err != nil {
+	cfg := mdrest.LoadConfig(*configFile)
+	if *src != "" {
+		cfg.SrcDir = *src
+	}
+	if *basePath != "" {
+		cfg.BasePath = *basePath
+	}
+	if *outType != "html" {
+		cfg.OutputType = *outType
+	}
+	mdr := mdrest.New(cfg)
+	defer mdr.Close()
+	if err := mdr.Do(); err != nil {
 		log.Panic(err)
 	}
 }
