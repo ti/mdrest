@@ -8,8 +8,8 @@ COPY ./ /go/src/github.com/ti/mdrest
 WORKDIR /go/src/github.com/ti/mdrest/mdrest
 RUN go install -ldflags '-s -w'
 
-FROM scratch
-COPY --from=0 /go/bin/mdrest /mdrest
-COPY --from=0 /go/src/github.com/ti/mdrest/mdrest/config.json /
-CMD ["/mdrest"]
+FROM alpine
+COPY --from=0 /go/bin/mdrest /app/mdrest
+COPY --from=0 /go/src/github.com/ti/mdrest/mdrest/config.json /app/
+CMD  ["/app/mdrest", "--help"]
 
