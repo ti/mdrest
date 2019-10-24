@@ -10,9 +10,11 @@ import (
 	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"path"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -250,10 +252,8 @@ func ReadArticles(srcDir, basePath string) (articles Articles, err error) {
 		}
 
 		htmlContent := blackfriday.Markdown(article[KeyRawContent].([]byte), renderer, extensions)
-
-		//repalce for the internal markdown (KEEP IT SIMPLE)
-		//htmlContent = bytes.Replace(htmlContent,[]byte(`href="` + PrefixInternalMarkDown),[]byte(`data-internalmd href="`), -1)
-		article[KeyHtml] = string(htmlContent)
+		content := renderCodeTabs(string(htmlContent), 1)
+		article[KeyHtml] = content
 		articles = append(articles, &article)
 	}
 	sort.Sort(articles)
@@ -261,15 +261,129 @@ func ReadArticles(srcDir, basePath string) (articles Articles, err error) {
 }
 
 /***
-<form class="tabs">
-    <input id="515736620" type="radio" name="tab" checked="checked"/>
-    <label for="515736620">Golang</label>
-    <section>1</section>
-    <input id="479272831" type="radio" name="tab"/>
-    <label for="479272831">Bash</label>
-    <section>2</section>
-    <input id="479272834" type="radio" name="tab"/>
-    <label for="479272834">Test</label>
-    <section>3</section>
-</form>
- */
+
+###### > GO
+```go
+  fmt.print("test cloud")
+```
+###### > bash
+```bash
+  fmt.print("haha")
+```
+###### > C++
+```cpp
+  this is cpp
+```
+
+<div class="tabs">
+	<input id="515736620" type="radio" name="tab1" track-name="golang" checked="checked"/>
+	<label for="515736620">Golang</label>
+	<section>1</section>
+	<input id="479272831" type="radio" track-name="bash" name="tab1"/>
+	<label for="479272831">Bash</label>
+	<section>2</section>
+	<input id="479272834" type="radio" track-name="test" name="tab1"/>
+	<label for="479272834">Test</label>
+	<section>3</section>
+</div>
+*/
+
+func renderCodeTabs(src string, startTabsID int) string {
+	if startTabsID < 0 {
+		return src
+	}
+	srcContent := src
+	firstH6 := strings.Index(src, "<h6 ")
+	if firstH6 > 0 {
+		src = src[firstH6+4:]
+		firstH6Left := strings.Index(src, ">")
+		firstH6Right := strings.Index(src, "</h6>")
+		firstTitle := src[firstH6Left+1 : firstH6Right]
+		if strings.HasPrefix(firstTitle, "&gt; ") {
+			src = "<h6 " + src
+			var contents []string
+			var content string
+			for {
+				content, src = getNextContent(src, startTabsID)
+				if content == "" {
+					break
+				}
+				contents = append(contents, content)
+			}
+			if len(contents) == 0 {
+				startTabsID = -1
+				return srcContent
+			}
+			contents[0] = strings.Replace(contents[0], `/><label for="`, ` checked="checked"/><label for="`, 1)
+			tpl := `<div class="tabs">%s</div>`
+			tpl = fmt.Sprintf(tpl, strings.Join(contents, "\n"))
+			startTabsID ++
+			src = renderCodeTabs(src, startTabsID)
+			srcContent = srcContent[:firstH6] + tpl + src
+			return srcContent
+		}
+	}
+	startTabsID = -1
+	return srcContent
+}
+
+func getNextContent(src string, idx int) (content, cleft string) {
+	left := strings.Index(src, "<")
+	if left < 0 || left+4 > len(src) {
+		return "", src
+	}
+	if src[left:left+4] != "<h6 " {
+		return "", src
+	}
+	leftR := strings.Index(src, ">")
+	h6Right := strings.Index(src, "</h6>")
+	if h6Right <= 0 {
+		return "", src
+	}
+	title := src[leftR+1 : h6Right]
+	if !strings.HasPrefix(title, "&gt; ") {
+		return "", src
+	}
+	src = src[h6Right+5:]
+	tagContent, src := getNextTagContent(src)
+	cleft = src
+	label := title[5:]
+	trackName := url.QueryEscape(strings.ToLower(label))
+	t := strconv.FormatInt(time.Now().UnixNano()/10, 10)
+	id := t[len(t)-10:]
+	tpl := `<input track-name="%s" id="%s" type="radio" name="%d"/><label for="%s">%s</label><section>%s</section>`
+	content = fmt.Sprintf(tpl, trackName, id, idx, id, label, tagContent)
+	return
+}
+
+func getNextTagContent(src string) (content, cleft string) {
+	left := strings.Index(src, "<")
+	right := strings.Index(src, ">")
+	if left < 0 || right < 0 || left+1 >= right {
+		return "", src
+	}
+	tag := src[left+1 : right]
+	if right > left {
+		tag = src[left+1 : right]
+	}
+	if tag == "" {
+		return "", src
+	}
+	rightTag := "</" + tag + ">"
+	rightTagIndex := strings.Index(src, rightTag)
+	if rightTagIndex > 0 {
+		content = src[left:rightTagIndex] + rightTag
+		cleft = src[rightTagIndex+len(rightTag):]
+		return
+	}
+	return "", src
+}
+
+func getNextTag(src string) string {
+	left := strings.Index(src, "<")
+	right := strings.Index(src, ">")
+	if right > left {
+		return src[left+1 : right]
+	}
+	return ""
+}
