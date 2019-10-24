@@ -270,19 +270,19 @@ func ReadArticles(srcDir, basePath string) (articles Articles, err error) {
 ```bash
   fmt.print("haha")
 ```
-###### > C++
+###### > CPP
 ```cpp
   this is cpp
 ```
 
 <div class="tabs">
-	<input id="515736620" type="radio" name="tab1" track-name="golang" checked="checked"/>
+	<input id="515736620" type="radio" name="tab1" track-name="go" checked="checked"/>
 	<label for="515736620">Golang</label>
 	<section>1</section>
 	<input id="479272831" type="radio" track-name="bash" name="tab1"/>
 	<label for="479272831">Bash</label>
 	<section>2</section>
-	<input id="479272834" type="radio" track-name="test" name="tab1"/>
+	<input id="479272834" type="radio" track-name="cpp" name="tab1"/>
 	<label for="479272834">Test</label>
 	<section>3</section>
 </div>
