@@ -1,0 +1,18 @@
+# github.com/fsnotify/fsnotify v1.4.7
+github.com/fsnotify/fsnotify
+# github.com/ghodss/yaml v1.0.0
+github.com/ghodss/yaml
+# github.com/russross/blackfriday v1.5.2
+github.com/russross/blackfriday
+# github.com/tdewolff/minify v2.3.6+incompatible
+github.com/tdewolff/minify
+github.com/tdewolff/minify/html
+# github.com/tdewolff/parse v2.3.4+incompatible
+github.com/tdewolff/parse
+github.com/tdewolff/parse/buffer
+github.com/tdewolff/parse/strconv
+github.com/tdewolff/parse/html
+# golang.org/x/sys v0.0.0-20190201152629-afcc84fd7533
+golang.org/x/sys/unix
+# gopkg.in/yaml.v2 v2.2.2
+gopkg.in/yaml.v2
