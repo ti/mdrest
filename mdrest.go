@@ -44,7 +44,7 @@ func (mj *MdRest) Do() error {
 	if !mj.cfg.NoLogging {
 		fmt.Println("Genrating files to", mj.cfg.DistDir)
 	}
-	articles, err := ReadArticles(mj.cfg.SrcDir, mj.cfg.BasePath)
+	articles, err := ReadArticles(mj.cfg.SrcDir, mj.cfg.BasePath, mj.cfg.ShowPageTitle)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (mj *MdRest) Do() error {
 				articles.Remove(location)
 				return
 			}
-			articles, err := ReadArticles(mj.cfg.SrcDir, mj.cfg.BasePath)
+			articles, err := ReadArticles(mj.cfg.SrcDir, mj.cfg.BasePath, mj.cfg.ShowPageTitle)
 			if err != nil {
 				log.Println(err)
 				return

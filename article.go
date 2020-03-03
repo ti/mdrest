@@ -72,7 +72,7 @@ func (a Articles) Remove(location string) *Article {
 }
 
 // ReadArticle returns an article read from a Reader
-func ReadArticle(srcDir, fpath string, basePath string) (Article, error) {
+func ReadArticle(srcDir, fpath, basePath string) (Article, error) {
 	file, err := os.Open(fpath)
 	if err != nil {
 		return nil, err
@@ -204,7 +204,7 @@ func parseFrontMatter(reader *bufio.Reader) (map[string]interface{}, error) {
 }
 
 // ReadArticle returns an article read from a Reader
-func ReadArticles(srcDir, basePath string) (articles Articles, err error) {
+func ReadArticles(srcDir, basePath string, showPageTitle bool) (articles Articles, err error) {
 	//read files
 	sourceFiles, err := ReadFiles(srcDir)
 	if err != nil {
@@ -253,6 +253,14 @@ func ReadArticles(srcDir, basePath string) (articles Articles, err error) {
 
 		htmlContent := blackfriday.Markdown(article[KeyRawContent].([]byte), renderer, extensions)
 		content := renderCodeTabs(string(htmlContent), 1)
+		if showPageTitle {
+			if t, ok := article[KeyTitle]; ok {
+				title, ok := t.(string)
+				if ok && title != ""{
+					content = fmt.Sprintf("<h1>%s</h1>%s", title, content)
+				}
+			}
+		}
 		article[KeyHtml] = content
 		articles = append(articles, &article)
 	}
