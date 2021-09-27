@@ -1,16 +1,16 @@
 package mdrest
 
 import (
+	"encoding/json"
 	"fmt"
-	"strings"
+	"github.com/tdewolff/minify"
+	"github.com/tdewolff/minify/html"
+	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
-	"encoding/json"
-	"log"
-	"io/ioutil"
-	"github.com/tdewolff/minify"
-	"github.com/tdewolff/minify/html"
+	"strings"
 )
 
 const (
@@ -82,9 +82,11 @@ func (this Articles) WriteFiles(distDir string, ftype string, noMinify bool) {
 		}
 
 		if ftype == "json" {
+			raw := arti[KeyRawContent]
 			delete(arti, KeyRawContent)
 			bytes, err = json.Marshal(arti)
 			arti[KeyHtml] = string(htmlContent)
+			arti[KeyRawContent] = raw
 			if err != nil {
 				log.Printf("could not Marshal article %v due to error: %v", distFileName, err)
 				continue
@@ -119,7 +121,6 @@ func (this Articles) WriteSiteMapFile(distDir string, deep int) {
 
 	siteMapMarkdown :=  this.GetSiteMap(deep).ToMarkdown()
 	fmt.Println("# SiteMap")
-
 	fmt.Println(siteMapMarkdown)
 	siteMapBytes, _ := json.Marshal(siteMap)
 	writeErr := ioutil.WriteFile(distDir+siteMapName, siteMapBytes, os.ModePerm)

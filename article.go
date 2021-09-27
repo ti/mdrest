@@ -134,7 +134,6 @@ func ReadArticle(srcDir, fpath, basePath string) (Article, error) {
 	}
 
 	location := strings.TrimSuffix(strings.TrimPrefix(fpath, srcDir), path.Ext(fpath))
-	//body[KeyLocation] = strings.ToLower(location)
 	//fix location case
 	body[KeyLocation] = location
 	content, err := ioutil.ReadAll(reader)
