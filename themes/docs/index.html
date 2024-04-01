@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>文档</title>
+    <link rel="icon" href="/assets/images/icons/logo.svg">
+    <meta name=theme-color content=#FFFFFF>
+    <link rel="stylesheet" href="/assets/styles/prism.css">
+    <link rel="stylesheet" href="/assets/styles/docs.css">
+    <style>
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        #page-loading {
+            z-index: 99;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: fixed;
+        }
+
+        .loading_spinner {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            box-sizing: border-box;
+            border-radius: 50%;
+            box-shadow: 0 -10px 0 13px rgba(255, 255, 255, 0.6) inset;
+            animation: rotate 1s infinite linear;
+        }
+    </style>
+</head>
+<body>
+<div id="page-loading">
+    <div class="loading_spinner"></div>
+</div>
+<div class="docs-layout">
+    <header>
+        <div class="left-nav" id="logo">
+            <a class="logo" href="/">
+                <img src="/assets/images/icons/logo.svg">
+                <span>Docs</span>
+            </a>
+        </div>
+        <div class="content" id="links">
+            <ul></ul>
+        </div>
+        <div class="right-nav">
+            <div>
+                <div class="search-box">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         stroke="currentColor" class="searchIcon">
+                        <g>
+                            <circle cx="10.5" cy="10.5" r="7.5"></circle>
+                            <line x1="21" y1="21" x2="15.8" y2="15.8"></line>
+                        </g>
+                    </svg>
+                    <input type="text" placeholder="搜索文档..." id="search-field">
+                </div>
+                <div class="search-autocomplete" id="search-result"></div>
+            </div>
+        </div>
+    </header>
+    <div class="main" id="main">
+        <div class="left-nav">
+            <nav class="docs-nav" id="docs-nav"></nav>
+        </div>
+        <div class="content" id="content">
+            <div class="article">
+                <div class="title" id="title"></div>
+                <div class="docs" id="doc"></div>
+            </div>
+        </div>
+        <div class="right-nav">
+            <nav class="docs-tools">
+                <ul>
+                    <li><a href="#" target="_blank" id="docs-git">
+                            <svg height="1em" width="1em" fill="currentColor" viewBox="0 0 48 48"
+                                 stroke="none" class="icon-7f6730be--text-3f89f380">
+                                <g>
+                                    <path d="M47.095 21.862 26.136.905a3.09 3.09 0 0 0-4.37 0l-4.352 4.353 5.52 5.52a3.67 3.67 0 0 1 4.649 4.68l5.32 5.32a3.677 3.677 0 0 1 3.8 6.074 3.677 3.677 0 0 1-6.003-4l-4.962-4.961v13.057a3.679 3.679 0 1 1-3.024-.107V17.662a3.678 3.678 0 0 1-1.997-4.824l-5.442-5.442-14.37 14.37a3.093 3.093 0 0 0 0 4.372l20.958 20.957a3.091 3.091 0 0 0 4.371 0l20.86-20.858a3.093 3.093 0 0 0 0-4.373"/>
+                                </g>
+                            </svg>
+                            在Git中编辑</a></li>
+                    <li><a href="javascript:window.print();" id="docs-print">
+                            <svg height="1em" width="1em" fill="currentColor" viewBox="0 0 24 24" stroke="none"
+                                 class="icon-7f6730be--text-3f89f380">
+                                <g>
+                                    <path d="M21.9 7.6c-.1-.1-.1-.2-.2-.3l-7-7c-.1-.1-.2-.2-.3-.2-.1-.1-.3-.1-.4-.1H5C3.3 0 2 1.3 2 3v9c0 .6.4 1 1 1s1-.4 1-1V3c0-.6.4-1 1-1h8v6c0 .6.4 1 1 1h6v3c0 .6.4 1 1 1s1-.4 1-1V8c0-.1 0-.3-.1-.4zM15 3.4L18.6 7H15V3.4zM5 15H3c-.6 0-1 .4-1 1v7c0 .6.4 1 1 1s1-.4 1-1v-2h1c1.6 0 3-1.3 3-3s-1.3-3-3-3zm0 4H4v-2h1c.5 0 1 .4 1 1s-.4 1-1 1zm5.5-4H10c-.6 0-1 .4-1 1v7c0 .6.4 1 1 1h.5c2.5 0 4.5-2 4.5-4.5S13 15 10.5 15zm2.5 4.5c0 1.2-.9 2.2-2 2.4V17c1.1.3 2 1.3 2 2.5zm5-2.5v2h3c.6 0 1 .4 1 1s-.4 1-1 1h-3v2c0 .6-.4 1-1 1s-1-.4-1-1v-7c0-.6.4-1 1-1h4c.6 0 1 .4 1 1s-.4 1-1 1h-3z"></path>
+                                </g>
+                            </svg>
+                            打印为PDF</a></li>
+                </ul>
+            </nav>
+            <nav class="docs-toc">
+                <ul style="display: none" id="toc-content">
+                    <li><a href="#content">
+                            <svg height="1em" width="1em" viewBox="0 0 19 19" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" stroke="currentColor">
+                                <g>
+                                    <line x1="21" y1="10" x2="7" y2="10"></line>
+                                    <line x1="21" y1="6" x2="3" y2="6"></line>
+                                    <line x1="21" y1="14" x2="3" y2="14"></line>
+                                    <line x1="21" y1="18" x2="7" y2="18"></line>
+                                </g>
+                            </svg>
+                            目录</a></li>
+                </ul>
+                <ul id="right-toc"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<script src="/assets/scripts/config.js"></script>
+<script src="/assets/scripts/blog.js"></script>
+<script src="/assets/scripts/app.js"></script>
+<script src="/assets/scripts/search.js"></script>
+<script src="/assets/scripts/search.js"></script>
+</body>
+</html>
